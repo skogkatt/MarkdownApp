@@ -1,11 +1,20 @@
+using MarkdownApp.Server.Data;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+builder.Services.AddControllers();
+builder.Services.AddDbContext<MarkdownContext>(options => options.UseSqlite("Name=MarkDownDB"));
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+}).AddCookie();
 
 var app = builder.Build();
 
@@ -28,6 +37,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 
 app.MapRazorPages();
 app.MapControllers();

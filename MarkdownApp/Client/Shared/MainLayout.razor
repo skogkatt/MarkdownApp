@@ -1,17 +1,43 @@
-﻿@inherits LayoutComponentBase
+﻿@using MarkdownApp.Shared.ViewModels.Interfaces
+@using Microsoft.AspNetCore.Components.Authorization
+@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@inject ILoginViewModel _loginViewModel
+@inject HttpClient _httpClient
 
 <div class="page">
     <div class="sidebar">
         <NavMenu />
     </div>
+    <main class="app-container">
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
+        <AuthorizeView>
+            <Authorized>
+                <div id="logoutBannerDiv" class="top-row px-4">
+                    <h4>Welcome, @context.User.Identity.Name</h4> &nbsp;
+                    <button type="button" class="btn btn-danger" @onclick="LogoutUser">Logout</button>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+            </NotAuthorized>
+        </AuthorizeView>
 
-        <article class="content px-4">
+
+
+        <article class="col-md-4 offset-md-3 mt-5">
             @Body
         </article>
     </main>
 </div>
+
+
+@code {
+
+    private async void LogoutUser()
+    {
+        await _httpClient.GetAsync("user/logoutuser");
+        NavigationManager.NavigateTo("/", true);
+    }
+
+
+}
