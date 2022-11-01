@@ -1,5 +1,4 @@
 ﻿using MarkdownApp.Shared.Models;
-using MarkdownApp.Shared.Services.Interfaces;
 using MarkdownApp.Shared.ViewModels.Interfaces;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Json;
@@ -38,7 +37,6 @@ namespace MarkdownApp.Shared.ViewModels
                     errorMessage = apiResponse;
                 }
             }
-
             return errorMessage;
         }
 

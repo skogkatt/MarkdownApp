@@ -2,8 +2,13 @@ using MarkdownApp.Server.Data;
 using MarkdownApp.Shared;
 using MarkdownApp.Shared.Models;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 #nullable disable
 
 namespace MarkdownApp.Server.Controllers
@@ -12,10 +17,10 @@ namespace MarkdownApp.Server.Controllers
     [Route("[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly ILogger<WeatherForecastController> _logger;
+        private readonly ILogger<UserController> _logger;
         private readonly MarkdownContext _context;
 
-        public UserController(ILogger<WeatherForecastController> logger, MarkdownContext context)
+        public UserController(ILogger<UserController> logger, MarkdownContext context)
         {
             _logger = logger;
             _context = context;
@@ -27,9 +32,11 @@ namespace MarkdownApp.Server.Controllers
             try
             {
                 User currentUser = new User();
+
                 if(User.Identity.IsAuthenticated)
                 {
-                    currentUser.Email = User.FindFirstValue(ClaimTypes.Name);
+                    currentUser.FirstName = User.FindFirstValue(ClaimTypes.Name);
+                    currentUser.Email = User.FindFirstValue(ClaimTypes.Email);
                 }
 
                 return await Task.FromResult(currentUser);
@@ -54,7 +61,8 @@ namespace MarkdownApp.Server.Controllers
                     if (loggedUser.Email.Equals(inputCredentials.Email) && loggedUser.Password.Equals(inputCredentials.Password))
                     {
                         var identity = new ClaimsIdentity(new[]{
-                        new Claim(ClaimTypes.Name, loggedUser.Email)
+                        new Claim(ClaimTypes.Name, loggedUser.FirstName)
+                        ,  new Claim(ClaimTypes.Email, loggedUser.Email)
                         }, "Authenticated");
 
                         var user = new ClaimsPrincipal(identity);

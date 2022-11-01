@@ -8,42 +8,65 @@
 @inject ILoginViewModel _loginViewModel
 
 <PageTitle>Login</PageTitle>
-@*<h3>MarkDown Home Page</h3>*@
 
-<div class="card">
-    <div class="card-body">
-        <EditForm Model="@credentials" OnValidSubmit="@(() => LoginUser(credentials))">
-            <DataAnnotationsValidator />
-            <div class="form-group" style="margin-bottom: 1rem;">
-                <label>Email</label>
-                <InputText @bind-Value="credentials.Email" class="form-control" @onclick="@(() => {isActive = false;})" />
-                <ValidationMessage For="@(() => credentials.Email)" />
+@if (!isAuthenticated)
+{
+    <article class="col-md-4 offset-md-3 mt-5">
+        <div class="card">
+            <div class="card-body">
+                <EditForm Model="@credentials" OnValidSubmit="@(() => LoginUser(credentials))">
+                    <DataAnnotationsValidator />
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label>Email</label>
+                        <InputText @bind-Value="credentials.Email" class="form-control" required @onclick="@(() => {isActive = false;})" />
+                        <ValidationMessage For="@(() => credentials.Email)" />
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label>Password</label>
+                        <InputText @bind-Value="credentials.Password" type="password" class="form-control" required @onclick="@(() => {isActive = false;})" />
+                        <ValidationMessage For="@(() => credentials.Password)" />
+                    </div>
+                    <div class="form-group">
+                        @if (isActive)
+                        {
+                            <div class="validation-message" style="margin-bottom: 1rem;">The email or password is incorrect.</div>
+                        }
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary" style="width: 100%">Log in</button>
+                    </div>
+                </EditForm>
             </div>
-            <div class="form-group" style="margin-bottom: 1rem;">
-                <label>Password</label>
-                <InputText @bind-Value="credentials.Password" type="password" class="form-control" @onclick="@(() => {isActive = false;})" />
-                <ValidationMessage For="@(() => credentials.Password)" />
-            </div>
-            <div class="form-group">
-                @if (isActive)
-                {
-                    <div class="validation-message" style="margin-bottom: 1rem;"> Email or Password are incorrect !</div>
-                }
-            </div>
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary" style="width: 100%">Login</button>
-            </div>
-        </EditForm>
-    </div>
-</div>
-
+        </div>
+    </article>
+}
+else
+{
+    <span class="text-nowrap">
+        You are already connected, go and try the new <a href="" @onclick="@HomePage" @onclick:preventDefault> markdown </a> feature !
+    </span>
+}
 
 @code {
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+
     private bool isActive = false;
     private string errorMessage = string.Empty;
-
+    private bool isAuthenticated = false;
     [Inject]
     public User credentials { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationState;
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            isAuthenticated = true;
+        }
+    }
 
     public async Task LoginUser(User paramCredentials)
     {
@@ -55,13 +78,13 @@
             if (string.IsNullOrEmpty(errorMessage))
             {
                 isActive = false;
-                NavigationManager.NavigateTo("/index", true);
+                StateHasChanged();
+                NavigationManager.NavigateTo("/documentmarkdown", true);
             }
 
             else
             {
                 isActive = true;
-                //NavigationManager.NavigateTo("/", true);
             }
 
         }
@@ -69,5 +92,11 @@
         {
             throw new Exception(ex.Message);
         }
+    }
+
+    public void HomePage()
+    {
+        NavigationManager.NavigateTo("/documentmarkdown", true);
+
     }
 }

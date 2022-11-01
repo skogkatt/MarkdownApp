@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 #nullable disable
 
-
 namespace MarkdownApp.Server.Data
 {
     public class MarkdownContext : DbContext
@@ -16,6 +15,7 @@ namespace MarkdownApp.Server.Data
         {
         }
         public DbSet<User> Users { get; set; }
+        public DbSet<Document> Document { get; set; }
     }
 }
 
