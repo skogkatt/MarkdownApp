@@ -1,46 +1,14 @@
 ﻿@inject NavigationManager NavigationManager
 
-<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">MarkdownApp</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="BackToMainPage">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</div>
-
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="documentmarkdown" Match="NavLinkMatch.All">
-                <span class="oi oi-caret-right" aria-hidden="true"></span> Start your markdown
-            </NavLink>
-        </div>
-@*      <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="oi oi-plus" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-            </NavLink>
-        </div>*@
-    </nav>
-</div>
-
-@code {
-    private bool collapseNavMenu = true;
-
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
-
-    private void BackToMainPage()
-    {
-        NavigationManager.NavigateTo("/", true);
-    }
-}
+<ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
+    <li class="nav-item">
+        <a href="#" class="nav-link align-middle px-0">
+            <i class="fs-4 bi-house"></i> <span class="ms-1 d-none d-sm-inline">Home</span>
+        </a>
+    </li>
+    <li>
+        <a href="documentmarkdown" class="nav-link px-0 align-middle">
+            <i class="fs-4 bi-table"></i> <span class="ms-1 d-none d-sm-inline">Markdown</span>
+        </a>
+    </li>
+</ul>
