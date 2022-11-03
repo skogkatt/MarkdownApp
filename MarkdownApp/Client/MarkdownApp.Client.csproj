@@ -16,4 +16,8 @@
     <ProjectReference Include="..\Shared\MarkdownApp.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\bootstrap\" />
+  </ItemGroup>
+
 </Project>
