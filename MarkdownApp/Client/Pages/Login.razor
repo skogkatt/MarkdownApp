@@ -1,0 +1,102 @@
+﻿@page "/"
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using MarkdownApp.Shared.Models
+@using MarkdownApp.Shared.ViewModels
+@using MarkdownApp.Shared.ViewModels.Interfaces
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager NavigationManager
+@inject ILoginViewModel _loginViewModel
+
+<PageTitle>Login</PageTitle>
+
+@if (!isAuthenticated)
+{
+    <article class="col-md-4 offset-md-3 mt-5">
+        <div class="card">
+            <div class="card-body">
+                <EditForm Model="@credentials" OnValidSubmit="@(() => LoginUser(credentials))">
+                    <DataAnnotationsValidator />
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label>Email</label>
+                        <InputText @bind-Value="credentials.Email" class="form-control" required @onclick="@(() => {isActive = false;})" />
+                        <ValidationMessage For="@(() => credentials.Email)" />
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label>Password</label>
+                        <InputText @bind-Value="credentials.Password" type="password" class="form-control" required @onclick="@(() => {isActive = false;})" />
+                        <ValidationMessage For="@(() => credentials.Password)" />
+                    </div>
+                    <div class="form-group">
+                        @if (isActive)
+                        {
+                            <div style="margin-bottom: 1rem; color:#FF0000">The email or password is incorrect.</div>
+                        }
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary" style="width: 100%">Log in</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </article>
+}
+else
+{
+    <span class="text-nowrap">
+        You are already connected, go and try the new <a href="" @onclick="@HomePage" @onclick:preventDefault> markdown </a> feature !
+    </span>
+}
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+
+    private bool isActive = false;
+    private string errorMessage = string.Empty;
+    private bool isAuthenticated = false;
+    [Inject]
+    public User credentials { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationState;
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            isAuthenticated = true;
+        }
+    }
+
+    public async Task LoginUser(User paramCredentials)
+    {
+        try
+        {
+            errorMessage = await _loginViewModel.LoginUser(credentials);
+
+            //Success
+            if (string.IsNullOrEmpty(errorMessage))
+            {
+                isActive = false;
+                StateHasChanged();
+                NavigationManager.NavigateTo("/documentmarkdown", true);
+            }
+
+            else
+            {
+                isActive = true;
+            }
+
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+    }
+
+    public void HomePage()
+    {
+        NavigationManager.NavigateTo("/documentmarkdown", true);
+
+    }
+}

@@ -1,0 +1,58 @@
+﻿@using MarkdownApp.Shared.ViewModels
+@using MarkdownApp.Shared.ViewModels.Interfaces
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager NavigationManager
+@inject IMarkDownViewModel _markdownViewModel
+
+<PageTitle>Markdown</PageTitle>
+
+<div style="width: 50%;float:left;height: 92%;">
+    <textarea style="width: 100%; resize:none; height: inherit" disabled="@IsDisabled" @bind="@InputValue"></textarea>
+    <div class="btn-group" role="group" style="width: 100%">
+        <button type="button" class="btn btn-success" disabled="@IsDisabled" @onclick="GetMarkdown">Get document</button>
+        <button type="button" class="btn btn-primary" disabled="@IsDisabled" @onclick="GenerateMarkdown">Generate</button>
+        <button type="button" class="btn btn-danger" disabled="@IsDisabled" @onclick="@(() => ClearMarkdownAll(false))">Clear markdown</button>
+        <button type="button" class="btn btn-dark" disabled="@IsDisabled" @onclick="@(() => ClearMarkdownAll(true))">Clear All</button>
+    </div>
+</div>
+
+<div style="width: 50%;float:right;height: 92%;" disabled="@IsDisabled">
+    @((MarkupString)OutputHtml)
+</div>
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+    private string InputValue, OutputHtml;
+    private bool IsDisabled { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationState;
+        var user = authState.User;
+
+        IsDisabled = false;
+        GetMarkdown();
+        if (!user.Identity.IsAuthenticated) IsDisabled = true;
+    }
+
+    private async void GenerateMarkdown()
+    {
+        OutputHtml = await _markdownViewModel.GenerateHtmlFromMarkdownAsync(InputValue);
+        StateHasChanged();
+    }
+
+    private async void GetMarkdown()
+    {
+        InputValue = await _markdownViewModel.GetMarkdownFromDocumentAsync();
+        StateHasChanged();
+    }
+
+    private void ClearMarkdownAll(bool clearAll)
+    {
+        OutputHtml = string.Empty;
+        if (clearAll) InputValue = string.Empty;
+
+        StateHasChanged();
+    }
+}
